@@ -1,0 +1,39 @@
+{
+  "name": "studinix",
+  "version": "2.0.0",
+  "description": "Studinix: Full-Stack Productivity & Focus Ecosystem with Mobile Admin Control",
+  "main": "electron/main.js",
+  "author": "Studinix Team <support@studinix.org>",
+  "license": "MIT",
+  "homepage": "https://studinix.org",
+  "scripts": {
+    "start": "electron .",
+    "dev": "python run_app.py",
+    "backend": "python backend/server.py",
+    "test": "python test_suite.py",
+    "pack": "npx electron-builder --dir",
+    "build:desktop": "npx electron-builder --win --mac --publish never",
+    "build:win": "npx electron-builder --win nsis:x64 --publish never",
+    "build:mac": "npx electron-builder --mac dmg --publish never",
+    "build:linux": "npx electron-builder --linux AppImage --publish never",
+    "dist": "npx electron-builder"
+  },
+  "build": {
+    "extends": "electron-builder.yml"
+  },
+  "keywords": [
+    "studinix",
+    "productivity",
+    "focus",
+    "electron",
+    "fastapi",
+    "parental-control",
+    "i18n",
+    "supabase",
+    "installer"
+  ],
+  "devDependencies": {
+    "electron": "^29.1.5",
+    "electron-builder": "^24.13.3"
+  }
+}

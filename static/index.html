@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studinix — Focus &amp; Tasks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #121826;
+      --border: #232d42;
+      --accent: #6366f1;
+      --accent-lt: #818cf8;
+      --emerald: #10b981;
+    }
+
+    body {
+      background: var(--bg);
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .font-mono-numbers { font-family: 'JetBrains Mono', monospace; }
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .tab-btn {
+      transition: all 0.2s ease;
+      font-size: 0.825rem;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      background: rgba(99, 102, 241, 0.18);
+      color: #818cf8;
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-6 lg:p-8">
+
+  <!-- ==================== TOP NAVIGATION ==================== -->
+  <header class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30 text-white font-black text-xl">
+        S
+      </div>
+      <div>
+        <h1 class="text-xl font-extrabold tracking-tight text-white">Studinix</h1>
+        <p class="text-xs text-slate-400">Minimalist Focus &amp; Gamified Tasks</p>
+      </div>
+    </div>
+
+    <!-- Gamified Points & Streak Bar + User Info -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
+        <span class="text-base">🔥</span>
+        <div>
+          <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Streak</span>
+          <span id="streak-counter" class="text-xs font-bold text-amber-400 font-mono-numbers">0 Days</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 px-4 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 shadow-inner">
+        <span class="text-base">💎</span>
+        <div>
+          <span class="text-[10px] text-indigo-300 block uppercase font-bold tracking-wider">Total Points</span>
+          <span id="points-counter" class="text-sm font-extrabold text-indigo-400 font-mono-numbers">0 PTS</span>
+        </div>
+      </div>
+
+      <!-- Launch Floating Drop Note Button -->
+      <button onclick="toggleDropNoteWindow()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-indigo-500/40 text-indigo-300 text-xs font-bold transition shadow-lg shadow-indigo-500/10">
+        <i data-lucide="pin" class="w-3.5 h-3.5"></i>
+        <span>Floating Drop Note</span>
+      </button>
+
+      <!-- Active User Profile & Logout / Switch Account -->
+      <div id="user-profile-badge" class="flex items-center gap-2.5 pl-3 border-l border-slate-800">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center font-bold text-xs text-indigo-300" id="user-avatar">
+          S
+        </div>
+        <div class="text-left hidden sm:block">
+          <span id="user-display-name" class="text-xs font-bold text-white block leading-tight">Student</span>
+          <span id="user-display-username" class="text-[10px] text-slate-400 font-mono-numbers">@user</span>
+        </div>
+        <button onclick="logout()" class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold transition flex items-center gap-1.5" title="Logout / Switch Account">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+
+    <!-- LEFT COLUMN: FOCUS STOPWATCH & PROGRESS (4 Cols) -->
+    <div class="lg:col-span-4 space-y-6">
+
+      <!-- Simple Focus Stopwatch -->
+      <div class="glass-card p-6 text-center space-y-5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Focus Stopwatch</span>
+          <span id="timer-state-badge" class="px-2 py-0.5 text-[10px] rounded-full bg-slate-800 text-slate-400 font-semibold uppercase">Idle</span>
+        </div>
+
+        <!-- Digits Display -->
+        <div id="stopwatch-display" class="text-5xl font-extrabold text-cyan-400 font-mono-numbers tracking-tight py-2">
+          00:00:00
+        </div>
+
+        <p class="text-xs text-slate-400">Unrestricted stopwatch for deep focus sessions.</p>
+
+        <!-- Controls -->
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button id="btn-timer-toggle" onclick="toggleStopwatch()" class="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+            <i data-lucide="play" class="w-4 h-4"></i>
+            <span id="timer-toggle-label">Start Focus</span>
+          </button>
+          <button onclick="resetStopwatch()" class="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Reset">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Gamification Rewards Guide -->
+      <div class="glass-card p-5 space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <i data-lucide="award" class="w-4 h-4 text-amber-400"></i>
+          <span>Points Rewards System</span>
+        </h3>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+            <span class="text-slate-300">Daily Task Completed</span>
+            <span class="font-bold text-emerald-400 font-mono-numbers">+10 PTS</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+            <span class="text-slate-300">Weekly &amp; Target Completed</span>
+            <span class="font-bold text-indigo-400 font-mono-numbers">+25 PTS</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+            <span class="text-slate-300">Daily Streak Maintained</span>
+            <span class="font-bold text-amber-400 font-mono-numbers">+Streak Multiplier</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drop Note Feature Spotlight -->
+      <div class="p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/20 text-xs text-indigo-200 space-y-1.5">
+        <div class="font-bold flex items-center gap-1.5 text-indigo-300">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Desktop Drop Note Active</span>
+        </div>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          The floating Drop Note stays <strong>always-on-top of all full-screen apps and games</strong>. Check off daily tasks directly without switching windows.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: MINIMALIST TASKS ENGINE (8 Cols) -->
+    <div class="lg:col-span-8 space-y-6">
+
+      <!-- Tasks Header & Category Tabs -->
+      <div class="glass-card p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-bold text-white">Task Management</h2>
+            <p class="text-xs text-slate-400">Daily auto-renewing habits, weekly deadlines &amp; targets</p>
+          </div>
+
+          <!-- Category Filter Tabs -->
+          <div class="flex items-center gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800">
+            <button onclick="switchCategory('all')" id="tab-all" class="tab-btn active px-3 py-1.5 rounded-lg border border-transparent">
+              All Tasks
+            </button>
+            <button onclick="switchCategory('daily')" id="tab-daily" class="tab-btn px-3 py-1.5 rounded-lg border border-transparent">
+              Daily (<span id="count-daily">0</span>)
+            </button>
+            <button onclick="switchCategory('weekly')" id="tab-weekly" class="tab-btn px-3 py-1.5 rounded-lg border border-transparent">
+              Weekly (<span id="count-weekly">0</span>)
+            </button>
+            <button onclick="switchCategory('target')" id="tab-target" class="tab-btn px-3 py-1.5 rounded-lg border border-transparent">
+              Targets (<span id="count-target">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Add Task Bar -->
+        <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-800/80">
+          <input type="text" id="new-task-title" placeholder="Add a new task or mission..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500" onkeydown="if(event.key==='Enter') createNewTask()" />
+
+          <select id="new-task-cat" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+            <option value="daily">Daily Task (+10 pts)</option>
+            <option value="weekly">Weekly Task (+25 pts)</option>
+            <option value="target">Target Milestone (+25 pts)</option>
+          </select>
+
+          <input type="date" id="new-task-deadline" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500" />
+
+          <button onclick="createNewTask()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Add</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Task Lists Container -->
+      <div id="tasks-container" class="space-y-2.5">
+        <!-- Rendered dynamically -->
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==================== AUTHENTICATION MODAL ==================== -->
+  <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-card max-w-md w-full p-6 md:p-8 space-y-6 border border-indigo-500/30 shadow-2xl relative">
+      <div class="text-center space-y-1.5">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-600 mx-auto flex items-center justify-center shadow-lg shadow-indigo-600/40 text-white font-black text-2xl">
+          S
+        </div>
+        <h2 class="text-xl font-extrabold text-white tracking-tight" id="auth-title">Welcome to Studinix</h2>
+        <p class="text-xs text-slate-400" id="auth-subtitle">Sign in to sync your focus sessions, tasks, and points</p>
+      </div>
+
+      <!-- Auth Switch Tabs -->
+      <div class="flex p-1 bg-slate-900 rounded-xl border border-slate-800">
+        <button id="tab-auth-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-bold rounded-lg transition active bg-indigo-600/20 text-indigo-400 border border-indigo-500/40">
+          Sign In
+        </button>
+        <button id="tab-auth-register" onclick="switchAuthTab('register')" class="flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white">
+          Create Account
+        </button>
+      </div>
+
+      <!-- Error / Status Message Alert -->
+      <div id="auth-error" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-medium"></div>
+
+      <!-- Login Form -->
+      <form id="form-login" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Username</label>
+          <input type="text" id="login-username" required placeholder="e.g. alex" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Password</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500" />
+        </div>
+        <button type="submit" id="btn-login-submit" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Sign In</span>
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" onsubmit="handleRegisterSubmit(event)" class="space-y-4 hidden">
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Full Name</label>
+          <input type="text" id="reg-fullname" placeholder="e.g. Alex Morgan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Username</label>
+          <input type="text" id="reg-username" required placeholder="Choose a username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Password</label>
+          <input type="password" id="reg-password" required placeholder="Min 4 characters" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div class="p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/20 text-[11px] text-indigo-300 leading-relaxed">
+          ✨ <strong>Zero-State Guarantee:</strong> Your new account starts with clean <strong>0 PTS</strong> and <strong>0 Days Streak</strong>. Earn points by completing real tasks!
+        </div>
+        <button type="submit" id="btn-register-submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>Create Account</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 pointer-events-none transition transform translate-y-4 opacity-0"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

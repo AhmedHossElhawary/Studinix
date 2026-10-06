@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studinix Drop Note</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --card-bg: rgba(22, 27, 34, 0.95);
+      --border: #30363d;
+      --accent: #6366f1;
+      --accent-lt: #818cf8;
+      --emerald: #10b981;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Floating Frameless Drop Note Container */
+    #dropnote-container {
+      width: 100%;
+      height: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.2);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Draggable Header */
+    .drag-bar {
+      -webkit-app-region: drag;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: grab;
+      background: rgba(13, 17, 23, 0.7);
+      border-radius: 16px 16px 0 0;
+    }
+    .drag-bar:active { cursor: grabbing; }
+
+    .brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-lt);
+    }
+
+    .points-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-lt);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .window-controls {
+      -webkit-app-region: no-drag;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .win-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .win-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+    .win-btn.close:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    /* Collapsed Chip Mode */
+    #collapsed-chip {
+      display: none;
+      -webkit-app-region: drag;
+      width: 100%;
+      height: 100%;
+      padding: 0 12px;
+      align-items: center;
+      justify-content: space-between;
+      cursor: grab;
+    }
+
+    .is-collapsed #expanded-body,
+    .is-collapsed .drag-bar {
+      display: none !important;
+    }
+    .is-collapsed #collapsed-chip {
+      display: flex !important;
+    }
+    .is-collapsed #dropnote-container {
+      border-radius: 24px;
+      border-color: rgba(99, 102, 241, 0.6);
+    }
+
+    /* Main Content Area */
+    #expanded-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 12px 14px;
+      gap: 10px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+    }
+    .task-count {
+      font-size: 0.72rem;
+      color: var(--accent-lt);
+      font-weight: 600;
+    }
+
+    /* Task List */
+    .task-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-right: 4px;
+    }
+    .task-list::-webkit-scrollbar { width: 4px; }
+    .task-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: rgba(13, 17, 23, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .task-item:hover {
+      background: rgba(13, 17, 23, 0.9);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateX(2px);
+    }
+    .task-item.completed {
+      opacity: 0.6;
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .task-item.completed .task-title {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .task-checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .task-item.completed .task-checkbox {
+      background: var(--emerald);
+      border-color: var(--emerald);
+    }
+
+    .task-title {
+      font-size: 0.82rem;
+      color: var(--text);
+      font-weight: 500;
+      line-height: 1.35;
+      flex: 1;
+    }
+
+    .task-pts-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #10b981;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    /* Quick Add Input Bar */
+    .quick-add-bar {
+      display: flex;
+      gap: 6px;
+      background: rgba(13, 17, 23, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 4px 6px;
+    }
+    .quick-add-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 4px 6px;
+    }
+    .quick-add-input::placeholder { color: var(--muted); }
+    .quick-add-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .quick-add-btn:hover { background: var(--accent-lt); }
+
+    /* Bottom Resize Corner Indicator */
+    .resize-handle {
+      display: flex;
+      justify-content: flex-end;
+      padding: 2px 4px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="dropnote-container">
+    <!-- Header (Draggable) -->
+    <div class="drag-bar">
+      <div class="brand-pill">
+        <span class="brand-dot"></span>
+        <span id="dn-user-badge" style="font-size:0.75rem;color:#c7d2fe;font-weight:700;">Daily Note</span>
+        <div class="points-badge">
+          <span>💎</span>
+          <span id="dn-points-label">0</span>
+          <span>pts</span>
+        </div>
+      </div>
+
+      <div class="window-controls">
+        <!-- Collapse to Chip Button -->
+        <button onclick="toggleCollapse(true)" class="win-btn" title="Collapse to Chip">
+          <i data-lucide="minus" style="width:13px;height:13px;"></i>
+        </button>
+        <!-- Close / Hide Button -->
+        <button onclick="closeDropNote()" class="win-btn close" title="Hide Note">
+          <i data-lucide="x" style="width:13px;height:13px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsed Tiny Chip View -->
+    <div id="collapsed-chip">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="brand-dot"></span>
+        <div class="points-badge">
+          <span>💎</span>
+          <span id="dn-chip-points">0</span>
+        </div>
+        <span id="dn-chip-status" style="font-size:0.75rem;color:#f0f6fc;font-weight:600;">2 daily tasks</span>
+      </div>
+      <div style="-webkit-app-region:no-drag;display:flex;gap:4px;">
+        <button onclick="toggleCollapse(false)" class="win-btn" title="Expand Note">
+          <i data-lucide="maximize-2" style="width:12px;height:12px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Expanded Body -->
+    <div id="expanded-body">
+      <div class="section-header">
+        <span class="section-title">Today's Daily Tasks</span>
+        <span class="task-count" id="dn-task-count">0/0 completed</span>
+      </div>
+
+      <!-- Task List Container -->
+      <div class="task-list" id="dn-task-list">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <!-- Inline Quick Add Input -->
+      <div class="quick-add-bar">
+        <input type="text" id="dn-new-task-input" class="quick-add-input" placeholder="+ Add a daily task..." onkeydown="if(event.key==='Enter') addDailyTask()" />
+        <button onclick="addDailyTask()" class="quick-add-btn" title="Add Task">
+          <i data-lucide="plus" style="width:14px;height:14px;"></i>
+        </button>
+      </div>
+
+      <div class="resize-handle">
+        <i data-lucide="grip-horizontal" style="width:12px;height:12px;"></i>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/dropnote.js"></script>
+</body>
+</html>

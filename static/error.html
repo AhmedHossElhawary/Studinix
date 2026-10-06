@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studinix — Backend Unavailable</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090d16;
+      --card: #111827;
+      --border: #27324a;
+      --accent: #6366f1;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: radial-gradient(circle at top, #141c2e 0, var(--bg) 62%);
+      color: var(--text);
+      font-family: Segoe UI, Arial, sans-serif;
+    }
+
+    .card {
+      width: min(560px, 100%);
+      padding: 32px 28px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.96);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.14);
+      color: #fca5a5;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.6rem;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.97rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .secondary {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .hint {
+      margin-top: 18px;
+      font-size: 0.84rem;
+      color: #7c8aa5;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">Backend not ready</div>
+    <h1>Studinix could not start the local engine</h1>
+    <p>
+      The Electron shell opened correctly, but the Python backend did not respond within 5 seconds.
+      The app is still safe to use once the engine is available.
+    </p>
+    <p class="hint">
+      If you are running from source, verify that Python is installed and the backend dependencies are available.
+    </p>
+    <div class="actions">
+      <button class="primary" onclick="location.reload()">Try again</button>
+      <button class="secondary" onclick="history.back()">Go back</button>
+    </div>
+  </div>
+</body>
+</html>

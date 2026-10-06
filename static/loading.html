@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset=UTF-8 />
+  <meta name=viewport content=width=device-width, initial-scale=1.0 />
+  <title>Studinix - Starting...</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #090d16;
+      color: #e2e8f0;
+      font-family: Segoe UI, system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      user-select: none;
+      overflow: hidden;
+    }
+    .logo {
+      width: 72px; height: 72px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 0 40px rgba(139,92,246,0.45);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(139,92,246,0.35); }
+      50%       { box-shadow: 0 0 60px rgba(139,92,246,0.65); }
+    }
+    .app-name {
+      font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle { font-size: 13px; color: #64748b; letter-spacing: 0.3px; margin-top: -20px; }
+    .bar-wrap { width: 220px; height: 4px; background: #1e293b; border-radius: 99px; overflow: hidden; }
+    .bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      border-radius: 99px;
+      animation: load 12s ease-in-out forwards;
+    }
+    @keyframes load {
+      0%  { width: 0%; }
+      40% { width: 55%; }
+      80% { width: 82%; }
+      100%{ width: 95%; }
+    }
+    .status { font-size: 12px; color: #475569; animation: blink 1.6s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
+    .error-box {
+      display: none;
+      background: #1e1a2e; border: 1px solid #ef4444; border-radius: 12px;
+      padding: 16px 24px; text-align: center; max-width: 380px;
+    }
+    .error-box .err-title { color: #f87171; font-weight: 600; margin-bottom: 6px; }
+    .error-box .err-msg   { color: #94a3b8; font-size: 12px; line-height: 1.6; }
+    .error-box .retry-btn {
+      margin-top: 14px; padding: 8px 20px; background: #6366f1;
+      color: #fff; border: none; border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 600;
+    }
+    .error-box .retry-btn:hover { background: #818cf8; }
+  </style>
+</head>
+<body>
+  <div class=logo>S</div>
+  <span class=app-name>Studinix</span>
+  <span class=subtitle>Focus and To-Do</span>
+  <div class=bar-wrap><div class=bar id=bar></div></div>
+  <span class=status id=status>Starting engine...</span>
+  <div class=error-box id=err-box>
+    <div class=err-title>Could not connect to backend</div>
+    <div class=err-msg>The Studinix engine could not be reached.<br>Make sure Python is installed and the app was launched correctly.</div>
+    <button class=retry-btn onclick=location.reload()>Retry</button>
+  </div>
+  <script>
+    const messages = ['Starting engine...','Loading your tasks...','Almost ready...','Warming up...'];
+    let i = 0;
+    const statusEl = document.getElementById('status');
+    const interval = setInterval(() => { i=(i+1)%messages.length; statusEl.textContent=messages[i]; }, 2200);
+    setTimeout(() => {
+      clearInterval(interval);
+      statusEl.style.display = 'none';
+      document.getElementById('err-box').style.display = 'block';
+      document.getElementById('bar').style.animation = 'none';
+      document.getElementById('bar').style.width = '0%';
+    }, 18000);
+  </script>
+</body>
+</html>

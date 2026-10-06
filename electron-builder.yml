@@ -1,0 +1,87 @@
+appId: com.studinix.desktop
+productName: Studinix
+copyright: "Copyright © 2025 Studinix Team. All rights reserved."
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - "package.json"
+  - "electron/**/*"
+  - "static/**/*"
+  - "backend/**/*"
+  - "requirements.txt"
+  - "run_app.py"
+
+extraResources:
+  - from: "backend"
+    to: "backend"
+    filter:
+      - "**/*"
+      - "!**/__pycache__"
+      - "!**/*.pyc"
+  - from: "static"
+    to: "static"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: "Studinix-Setup.${ext}"
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: "Studinix"
+  runAfterFinish: true
+  menuCategory: "Productivity"
+  deleteAppDataOnUninstall: false
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+  category: public.app-category.productivity
+  darkModeSupport: true
+  artifactName: "Studinix-${version}-${arch}.${ext}"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+
+dmg:
+  title: "Studinix Focus & Productivity"
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+  category: Utility
+  artifactName: "Studinix-${version}-${arch}.${ext}"
+
+publish:
+  provider: github
+  owner: studinix
+  repo: studinix-desktop
